@@ -1,6 +1,6 @@
-# ChatForge (ChatForge)
+# ChatForge — Cloudflare Workers AI Chat
 
-**Version:** v0.1  
+**Version:** v1.0  
 **Status:** Active Development  
 **Repository:** https://github.com/OneByJorah/ChatForge
 
@@ -24,49 +24,58 @@
 
 ## Overview
 
-AI chat interface with streaming responses and multi-provider backend support.
+ChatForge is a simple chat application powered by Cloudflare Workers AI. It runs entirely on the edge, uses Workers AI for model inference, and streams responses to a lightweight HTML5 frontend.
 
 ---
 
 ## Architecture
 
-Client → Local service (`ChatForge`) → data/processing modules → output/api layer.
-Secrets and environment configuration are managed via environment files with restrictive permissions.
+Client browser → static frontend (`public/index.html` + `public/chat.js`) → Cloudflare Worker (`src/index.ts`) → Workers AI → streaming response.
+
+The frontend posts messages to the Worker, which calls Workers AI and streams tokens back. No origin server required.
 
 ---
 
 ## Technology Stack
 
-|| Layer | Stack |
+| Layer | Stack |
 |---|---|
-| Runtime | Linux (Ubuntu 22.04+) |
-| Primary Stack | HTML5 / JavaScript / LLM |
+| Runtime | Cloudflare Workers |
+| Backend | TypeScript / Workers AI |
+| Frontend | HTML5 + JavaScript |
+| Tooling | Wrangler, Vitest, Workers TypeGen |
 | VCS | Git + GitHub (`github.com/OneByJorah/ChatForge`) |
-| Dev Port | Localhost / systemd service |
 
 ---
 
 ## Features
 
-- Operational dashboard and monitoring (per repo).
-- Exportable data / reports where supported.
-- Extensible service-based design.
-- Dark-themed UI where applicable.
+- **Edge-native runtime**: Cloudflare Workers with zero cold-start servers.
+- **LLM chat**: Workers AI model inference.
+- **Streaming responses**: live token delivery to the UI.
+- **Typed worker config**: `wrangler.jsonc` + generated types.
+- **Local preview**: Wrangler dev mode for local iteration.
 
 ---
 
 ## Getting Started
 
 ```bash
-# 1. Clone the repository
+# 1. Clone
 git clone https://github.com/OneByJorah/ChatForge.git
 cd ChatForge
 
-# 2. Install dependencies
-# (see specific subproject docs)
+# 2. Install
+npm install
 
-# 3. Start the service
-# (see Service Management below)
+# 3. Type generation
+npm run cf-typegen
+
+# 4. Local dev
+npx wrangler dev
+
+# 5. Deploy
+npx wrangler deploy
 ```
 
 ---
@@ -74,12 +83,15 @@ cd ChatForge
 ## Service Management
 
 ```bash
-# Start the service (example)
-sudo systemctl start ChatForge.service
-sudo systemctl enable ChatForge.service
-```
+# Dev loop (local)
+npx wrangler dev
 
-Access the service via your configured localhost port or reverse proxy.
+# Dry-run validation
+npm run check
+
+# Publish
+npx wrangler deploy
+```
 
 ---
 
@@ -87,24 +99,33 @@ Access the service via your configured localhost port or reverse proxy.
 
 ```
 ChatForge/
-├── README.md
-├── (additional project files)
+├── src/
+│   ├── index.ts
+│   └── types.ts
+├── public/
+│   ├── index.html
+│   └── chat.js
+├── worker-configuration.d.ts
+├── wrangler.jsonc
+├── tsconfig.json
+├── package.json
+└── docs/screenshots/
+    └── chatforge-ui.png
 ```
 
 ---
 
 ## Screenshots
 
-All screenshots are live captures from the local dev instance.
-
-_(Screenshots will be added after build/run capture.)_
+### ChatForge UI
+![ChatForge UI](docs/screenshots/chatforge-ui.png)
 
 ---
 
 ## Contributing
 
 1. Create a feature branch off `main`.
-2. Follow the existing code style.
+2. Run `npm run check` before submitting.
 3. Submit a PR with description and screenshots for UI changes.
 
 ---
