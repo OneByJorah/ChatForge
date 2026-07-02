@@ -71,8 +71,10 @@ npm install
 # 3. Type generation
 npm run cf-typegen
 
+# Required for `wrangler dev` with AI binding:
+export CLOUDFLARE_API_TOKEN="your-token"
 # 4. Local dev
-npx wrangler dev
+npx wrangler dev --port 5175
 
 # 5. Deploy
 npx wrangler deploy
