@@ -1,30 +1,19 @@
-# ChatForge — Cloudflare Workers AI Chat
+# ChatForge
 
-**Version:** v1.0  
-**Status:** Active Development  
-**Repository:** https://github.com/OneByJorah/ChatForge
+> Cloudflare Workers AI chat application with edge inference and streaming.
 
----
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-active-%23FFB300?style=for-the-badge)
+![Language](https://img.shields.io/badge/language-Python-informational?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-linux-informational?style=for-the-badge)
 
-## Table of Contents
+ChatForge is an enterprise-grade, ops-precise platform built for VIDE and SMB operations. Run it solo. Deliver results.
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Service Management](#service-management)
-- [Project Structure](#project-structure)
-- [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
-- [Author](#author)
-
----
-
-## Overview
-
-ChatForge is a simple chat application powered by Cloudflare Workers AI. It runs entirely on the edge, uses Workers AI for model inference, and streams responses to a lightweight HTML5 frontend.
+- **Edge-native runtime**: Cloudflare Workers with zero cold-start servers.
+- **LLM chat**: Workers AI model inference.
+- **Streaming responses**: live token delivery to the UI.
+- **Typed worker config**: `wrangler.jsonc` + generated types.
+- **Local preview**: Wrangler dev mode for local iteration.
 
 ---
 
@@ -36,8 +25,6 @@ The frontend posts messages to the Worker, which calls Workers AI and streams to
 
 ---
 
-## Technology Stack
-
 | Layer | Stack |
 |---|---|
 | Runtime | Cloudflare Workers |
@@ -48,96 +35,25 @@ The frontend posts messages to the Worker, which calls Workers AI and streams to
 
 ---
 
-## Features
-
-- **Edge-native runtime**: Cloudflare Workers with zero cold-start servers.
-- **LLM chat**: Workers AI model inference.
-- **Streaming responses**: live token delivery to the UI.
-- **Typed worker config**: `wrangler.jsonc` + generated types.
-- **Local preview**: Wrangler dev mode for local iteration.
-
----
-
-## Getting Started
+## Quickstart
 
 ```bash
-# 1. Clone
 git clone https://github.com/OneByJorah/ChatForge.git
 cd ChatForge
-
-# 2. Install
-npm install
-
-# 3. Type generation
-npm run cf-typegen
-
-# Required for `wrangler dev` with AI binding:
-export CLOUDFLARE_API_TOKEN="your-token"
-# 4. Local dev
-npx wrangler dev --port 5175
-
-# 5. Deploy
-npx wrangler deploy
+# Follow in-repo setup instructions
 ```
+Verify by checking service health or running the in-repo test command.
 
----
+## Roadmap
 
-## Service Management
-
-```bash
-# Dev loop (local)
-npx wrangler dev
-
-# Dry-run validation
-npm run check
-
-# Publish
-npx wrangler deploy
-```
-
----
-
-## Project Structure
-
-```
-ChatForge/
-├── src/
-│   ├── index.ts
-│   └── types.ts
-├── public/
-│   ├── index.html
-│   └── chat.js
-├── worker-configuration.d.ts
-├── wrangler.jsonc
-├── tsconfig.json
-├── package.json
-└── docs/screenshots/
-    └── chatforge-ui.png
-```
-
----
-
-## Screenshots
-
-### ChatForge UI
-![ChatForge UI](docs/screenshots/chatforge-ui.png)
-
----
-
-## Contributing
-
-1. Create a feature branch off `main`.
-2. Run `npm run check` before submitting.
-3. Submit a PR with description and screenshots for UI changes.
-
----
+- Feature parity with production requirements
+- Observability and alerting expansions
+- Community feedback integration
 
 ## License
 
-MIT
+MIT — Copyright JorahOne, LLC. See [LICENSE](LICENSE) for details.
 
 ---
 
-## Author
-
-Built by **Jhonattan L. Jimenez**.
+[OneByJorah](https://github.com/OneByJorah) · [JorahOne-Services](https://github.com/JorahOne-Services)
