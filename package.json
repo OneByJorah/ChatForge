@@ -31,6 +31,9 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"test": "vitest"
+		"test": "vitest",
+		"typecheck": "tsc --noEmit",
+		"lint": "tsc --noEmit",
+		"format": "tsc --noEmit"
 	}
 }
