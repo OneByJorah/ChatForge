@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+node_modules/
+.wrangler/
+dist/
+.vscode/
+.DS_Store
+README.md
+AUDIT_REPORT.md
