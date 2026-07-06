@@ -17,6 +17,29 @@ const MODEL_ID = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const SYSTEM_PROMPT =
 	"You are a helpful, friendly assistant. Provide concise and accurate responses.";
 
+/**
+ * Adds security headers to a Response
+ */
+function withSecurityHeaders(response: Response): Response {
+	const headers = new Headers(response.headers);
+	headers.set("x-content-type-options", "nosniff");
+	headers.set("x-frame-options", "DENY");
+	headers.set(
+		"strict-transport-security",
+		"max-age=31536000; includeSubDomains",
+	);
+	headers.set("referrer-policy", "strict-origin-when-cross-origin");
+	headers.set(
+		"permissions-policy",
+		"camera=(), microphone=(), geolocation=()",
+	);
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
 export default {
 	/**
 	 * Main request handler for the Worker
@@ -30,22 +53,24 @@ export default {
 
 		// Handle static assets (frontend)
 		if (url.pathname === "/" || !url.pathname.startsWith("/api/")) {
-			return env.ASSETS.fetch(request);
+			return withSecurityHeaders(await env.ASSETS.fetch(request));
 		}
 
 		// API Routes
 		if (url.pathname === "/api/chat") {
 			// Handle POST requests for chat
 			if (request.method === "POST") {
-				return handleChatRequest(request, env);
+				return withSecurityHeaders(await handleChatRequest(request, env));
 			}
 
 			// Method not allowed for other request types
-			return new Response("Method not allowed", { status: 405 });
+			return withSecurityHeaders(
+				new Response("Method not allowed", { status: 405 }),
+			);
 		}
 
 		// Handle 404 for unmatched routes
-		return new Response("Not found", { status: 404 });
+		return withSecurityHeaders(new Response("Not found", { status: 404 }));
 	},
 } satisfies ExportedHandler<Env>;
 
@@ -89,6 +114,7 @@ async function handleChatRequest(
 				"content-type": "text/event-stream; charset=utf-8",
 				"cache-control": "no-cache",
 				connection: "keep-alive",
+				"x-content-type-options": "nosniff",
 			},
 		});
 	} catch (error) {
@@ -97,7 +123,10 @@ async function handleChatRequest(
 			JSON.stringify({ error: "Failed to process request" }),
 			{
 				status: 500,
-				headers: { "content-type": "application/json" },
+				headers: {
+					"content-type": "application/json",
+					"x-content-type-options": "nosniff",
+				},
 			},
 		);
 	}
