@@ -21,6 +21,10 @@
 
 ---
 
+## 📸 Screenshot
+
+This is a CLI/backend-only tool. No screenshots available.
+
 ## ✨ Features
 
 - **Edge-Native** — Runs entirely on Cloudflare Workers, zero cold-start serverless
