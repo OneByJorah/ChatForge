@@ -35,7 +35,7 @@
 ### Prerequisites
 - Node.js 18+
 - Cloudflare account with Workers enabled
-- Wrangler CLI
+- Wrangler CLI (`npm install -g wrangler`)
 
 ### Installation
 
@@ -49,8 +49,18 @@ npm run dev
 ### Deploy
 
 ```bash
+# 1. Copy and fill in your Cloudflare credentials
+cp .env.example .env
+# Edit .env with your CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+
+# 2. Authenticate with Cloudflare (if not already done)
+npx wrangler login
+
+# 3. Deploy to Cloudflare Workers
 npm run deploy
 ```
+
+> **Note:** ChatForge is a serverless Cloudflare Workers application and does **not** use Docker. It runs on Cloudflare's global edge network with zero cold starts. See [wrangler.jsonc](./wrangler.jsonc) for the full configuration.
 
 ## 🏗️ Architecture
 
