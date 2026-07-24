@@ -200,3 +200,6 @@ dist
 
 ### Pipeline Reports ###
 reports/
+
+# OneByJorah portfolio tooling
+.venv-screenshot/
