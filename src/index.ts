@@ -17,6 +17,10 @@ const MODEL_ID = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const SYSTEM_PROMPT =
 	"You are a helpful, friendly assistant. Provide concise and accurate responses.";
 
+// Input limits
+const MAX_MESSAGES = 100;
+const MAX_MESSAGE_LENGTH = 32_000;
+
 /**
  * Adds security headers to a Response
  */
@@ -24,6 +28,10 @@ function withSecurityHeaders(response: Response): Response {
 	const headers = new Headers(response.headers);
 	headers.set("x-content-type-options", "nosniff");
 	headers.set("x-frame-options", "DENY");
+	headers.set(
+		"content-security-policy",
+		"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
+	);
 	headers.set(
 		"strict-transport-security",
 		"max-age=31536000; includeSubDomains",
@@ -75,23 +83,59 @@ export default {
 } satisfies ExportedHandler<Env>;
 
 /**
+ * Validates and normalizes the messages array from the request body.
+ * Returns null if the payload is malformed.
+ */
+function validateMessages(input: unknown): ChatMessage[] | null {
+	if (input === undefined) return [];
+	if (!Array.isArray(input) || input.length > MAX_MESSAGES) return null;
+
+	const messages: ChatMessage[] = [];
+	for (const msg of input) {
+		if (typeof msg !== "object" || msg === null) return null;
+		const { role, content } = msg as Record<string, unknown>;
+		if (
+			(role !== "system" && role !== "user" && role !== "assistant") ||
+			typeof content !== "string" ||
+			content.length > MAX_MESSAGE_LENGTH
+		) {
+			return null;
+		}
+		messages.push({ role, content });
+	}
+	return messages;
+}
+
+/**
  * Handles chat API requests
  */
 async function handleChatRequest(
 	request: Request,
 	env: Env,
 ): Promise<Response> {
+	let body: unknown;
 	try {
-		// Parse JSON request body
-		const { messages = [] } = (await request.json()) as {
-			messages: ChatMessage[];
-		};
+		body = await request.json();
+	} catch {
+		return jsonError("Invalid JSON body", 400);
+	}
 
-		// Add system prompt if not present
-		if (!messages.some((msg) => msg.role === "system")) {
-			messages.unshift({ role: "system", content: SYSTEM_PROMPT });
-		}
+	const messages = validateMessages(
+		(body as { messages?: unknown } | null)?.messages,
+	);
+	if (messages === null) {
+		return jsonError(
+			"Invalid messages: expected an array of at most 100 { role, content } objects with role system|user|assistant",
+			400,
+		);
+	}
 
+	// Add system prompt if not present
+	if (!messages.some((msg) => msg.role === "system")) {
+		messages.unshift({ role: "system", content: SYSTEM_PROMPT });
+	}
+
+	try {
 		const stream = await env.AI.run(
 			MODEL_ID,
 			{
@@ -119,15 +163,19 @@ async function handleChatRequest(
 		});
 	} catch (error) {
 		console.error("Error processing chat request:", error);
-		return new Response(
-			JSON.stringify({ error: "Failed to process request" }),
-			{
-				status: 500,
-				headers: {
-					"content-type": "application/json",
-					"x-content-type-options": "nosniff",
-				},
-			},
-		);
+		return jsonError("Failed to process request", 500);
 	}
+}
+
+/**
+ * Returns a JSON error response with security headers
+ */
+function jsonError(message: string, status: number): Response {
+	return new Response(JSON.stringify({ error: message }), {
+		status,
+		headers: {
+			"content-type": "application/json",
+			"x-content-type-options": "nosniff",
+		},
+	});
 }

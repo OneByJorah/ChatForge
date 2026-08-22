@@ -2,12 +2,11 @@
 
 # ChatForge
 
-**AI-Powered Multi-Model Chat Interface** — Edge-native, real-time streaming conversations
+**AI-Powered Chat Interface** — Edge-native, real-time streaming conversations on Cloudflare Workers AI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=fff)](https://workers.cloudflare.com/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](https://docker.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)](CONTRIBUTING.md)
 
 </div>
@@ -20,27 +19,27 @@
 
 ## Overview
 
-ChatForge is a high-performance, edge-deployed AI chat interface supporting **OpenAI**, **Anthropic Claude**, and **local Ollama models**. Built on Cloudflare Workers for global low-latency access with real-time WebSocket streaming.
+ChatForge is a lightweight, edge-deployed AI chat interface powered by **Cloudflare Workers AI** (Llama 3.1 8B Instruct). The entire app — static frontend and streaming chat API — runs in a single Cloudflare Worker with Server-Sent Events (SSE) streaming and no backend server.
 
 ### Why ChatForge?
 
-| Feature | ChatForge | Other Solutions |
-|---------|-----------|----------------|
-| **Deployment** | Edge (Cloudflare Workers) + Docker | Usually server-only |
-| **Model Support** | OpenAI, Anthropic, Ollama | Usually single provider |
-| **Streaming** | Real-time SSE/WebSocket | Often polling-based |
-| **Latency** | Global edge <50ms | Regional servers |
+| Feature | ChatForge | Typical Alternatives |
+|---------|-----------|----------------------|
+| **Deployment** | Single edge Worker, one command | Multi-service stacks |
+| **Backend** | None required (Workers AI binding) | API servers + keys |
+| **Streaming** | Real-time SSE | Polling-based |
+| **Cold Starts** | None | Regional servers |
 
 ## Features
 
-- **Multi-Model Support** — OpenAI GPT-4/4o/3.5, Anthropic Claude 3 Opus/Sonnet, local Ollama models
+- **Cloudflare Workers AI** — Llama 3.1 8B Instruct (FP8) inference at the edge
 - **Real-Time Streaming** — Server-Sent Events (SSE) for instant response delivery
-- **Conversation Management** — Create, save, search, and switch between chat sessions
-- **Edge Deployment** — Cloudflare Workers for <50ms global latency
-- **Docker Self-Host** — Full Docker Compose support for private deployment
-- **Markdown Rendering** — Full markdown with syntax highlighting and code execution
-- **Dark/Light Themes** — Customizable interface with system-aware defaults
-- **Security First** — JWT auth, security headers, CSP enforcement
+- **Single-Worker Deploy** — Frontend + API in one `wrangler deploy`
+- **Markdown-Free Simplicity** — Vanilla HTML/CSS/JS frontend, zero framework overhead
+- **Security Headers** — CSP, HSTS, X-Frame-Options, nosniff, referrer/permissions policy
+- **Input Validation** — Message shape/count/length limits enforced server-side
+
+> **Note:** ChatForge is a reference implementation / starter template. It intentionally has **no authentication, no persistence, and no rate limiting** — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the upgrade path.
 
 ## Quick Start
 
@@ -50,85 +49,68 @@ ChatForge is a high-performance, edge-deployed AI chat interface supporting **Op
 git clone https://github.com/OneByJorah/ChatForge.git
 cd ChatForge
 npm install
-cp wrangler.jsonc wrangler.toml
-# Edit wrangler.toml with your API keys
+npx wrangler login
 npm run deploy
 ```
 
-### Docker Self-Host
+The Workers AI binding requires **no API keys** — inference is billed to your Cloudflare account. For local development:
 
 ```bash
-docker compose -f docker-compose.deploy.yml up -d
+npm run dev   # http://localhost:8787
 ```
-
-Open **http://localhost:8091** in your browser.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Runtime** | Cloudflare Workers / Node.js |
-| **Frontend** | Vanilla JS + WebSocket (no framework overhead) |
-| **AI Providers** | OpenAI, Anthropic, Ollama |
-| **Storage** | Cloudflare D1/KV, SQLite |
-| **Auth** | JWT-based with session management |
-| **Deployment** | Cloudflare Workers, Docker, VPS |
+| **Runtime** | Cloudflare Workers |
+| **Frontend** | Vanilla HTML/CSS/JS (no framework) |
+| **AI Provider** | Cloudflare Workers AI (`@cf/meta/llama-3.1-8b-instruct-fp8`) |
+| **Streaming** | Server-Sent Events (SSE) |
+| **Storage** | None (chat history lives in browser memory) |
+| **Auth** | None (add Cloudflare Access for production) |
 
 ## Screenshots
 
-<details>
-<summary><b>Click to expand screenshots</b></summary>
-
-<br>
-
-| Chat Interface | Conversation History |
+| Chat Interface | Sample Conversation |
 |:---:|:---:|
-| <img src="docs/screenshots/chatforge-ui.png" alt="Chat Interface" width="100%"> | <img src="docs/screenshots/history.png" alt="History" width="100%"> |
-
-| Model Selection | Full Preview |
-|:---:|:---:|
-| <img src="docs/screenshots/models.png" alt="Models" width="100%"> | <img src="docs/screenshot.png" alt="Full UI" width="100%"> |
-
-</details>
+| <img src="docs/screenshots/chatforge-ui.png" alt="ChatForge UI" width="100%"> | <img src="docs/screenshots/chat-conversation.png" alt="Sample conversation" width="100%"> |
 
 ## Environment Variables
 
-| Variable | Default | Required | Description |
-|----------|---------|----------|-------------|
-| `OPENAI_API_KEY` | — | No | OpenAI API key |
-| `ANTHROPIC_API_KEY` | — | No | Anthropic API key |
-| `OLLAMA_URL` | `http://localhost:11434` | No | Ollama API endpoint |
-| `JWT_SECRET` | — | Yes | Secret for JWT authentication |
-| `DATABASE_URL` | — | No | Database for conversation storage |
-| `PORT` | `3000` | No | Server port (Docker mode) |
+No runtime secrets are needed — the AI binding is configured in [`wrangler.jsonc`](wrangler.jsonc). Deployment credentials (set as environment variables or Wrangler secrets, never committed):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `CLOUDFLARE_API_TOKEN` | For deploy | Cloudflare API token (Wrangler deployment) |
+| `CLOUDFLARE_ACCOUNT_ID` | For deploy | Cloudflare account ID |
+
+See [.env.example](.env.example).
 
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/chat` | `POST` | Send message and get response |
-| `/api/chat/stream` | `POST` | Stream response via SSE |
-| `/api/conversations` | `GET` | List user conversations |
-| `/api/conversations/:id` | `GET` | Get conversation history |
-| `/api/auth/login` | `POST` | User login |
-| `/api/auth/register` | `POST` | User registration |
+| `/api/chat` | `POST` | Send messages, receive SSE-streamed response |
+| `/*` (any non-API path) | `GET` | Static frontend from `public/` |
+
+Errors: `400` invalid JSON/messages, `405` wrong method, `404` unknown route, `500` AI failure. Full details in [docs/API.md](docs/API.md).
 
 ## Project Structure
 
 ```
 ChatForge/
 ├── src/                # Cloudflare Worker source
-│   ├── index.ts        # Main entry with routing
+│   ├── index.ts        # Main entry with routing + chat API
 │   ├── types.ts        # TypeScript type definitions
-│   └── __tests__/      # Test suite
+│   └── __tests__/      # Vitest test suite
 ├── public/             # Frontend assets
 │   ├── index.html      # Chat interface
-│   └── chat.js         # Frontend WebSocket logic
+│   └── chat.js         # Frontend SSE logic
 ├── scripts/            # Utility scripts
 ├── docs/               # Documentation & assets
 │   ├── screenshots/    # App screenshots
 │   └── API.md          # Full API documentation
-├── docker-compose.deploy.yml
 ├── wrangler.jsonc      # Cloudflare config
 └── package.json
 ```
@@ -136,21 +118,24 @@ ChatForge/
 ## Architecture
 
 ```
-Browser ──WebSocket──▶ Cloudflare Worker / Node.js
-                          │
-                          ├──▶ OpenAI API
-                          ├──▶ Anthropic API
-                          ├──▶ Ollama (local)
-                          └──▶ D1/KV Storage
+Browser ──SSE──▶ Cloudflare Worker (src/index.ts)
+                    │
+                    ├── GET /* ──▶ env.ASSETS.fetch() ──▶ public/ (static files)
+                    │
+                    └── POST /api/chat ──▶ env.AI.run() ──▶ Workers AI (Llama 3.1 8B)
+                                                │
+                                                └── text/event-stream response
 ```
+
+Chat history is kept in browser memory only and resets on refresh.
 
 ## Supported Models
 
-| Provider | Models |
-|----------|--------|
-| **OpenAI** | GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo |
-| **Anthropic** | Claude 3 Opus, Claude 3 Sonnet, Claude 2 |
-| **Ollama** | Llama 3, Mistral, CodeLlama, DeepSeek, and 100+ more |
+| Provider | Model |
+|----------|-------|
+| **Cloudflare Workers AI** | `@cf/meta/llama-3.1-8b-instruct-fp8` (default, swappable via `MODEL_ID` in [src/index.ts](src/index.ts)) |
+
+Browse the full catalog at the [Workers AI models page](https://developers.cloudflare.com/workers-ai/models/) — any text-generation model ID can be dropped in.
 
 ## Contributing
 
@@ -158,7 +143,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## Security
 
-Found a vulnerability? Please report to **info@jorahone.com** — do not use public issues. See [SECURITY.md](SECURITY.md).
+Found a vulnerability? Please report to **security@jorahone.com** per [SECURITY.md](SECURITY.md) — do not use public issues.
 
 ## License
 

@@ -105,6 +105,45 @@ describe("ChatForge Worker", () => {
     expect(body).toHaveProperty("error");
   });
 
+  it("should return 400 on malformed JSON body", async () => {
+    const request = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{not json",
+    });
+    const response = await worker.fetch(request, mockEnv as any, mockCtx);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body).toHaveProperty("error");
+    expect(mockAiRun).not.toHaveBeenCalled();
+  });
+
+  it("should return 400 on invalid message shape", async () => {
+    const request = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "hacker", content: "Hello!" }],
+      }),
+    });
+    const response = await worker.fetch(request, mockEnv as any, mockCtx);
+    expect(response.status).toBe(400);
+    expect(mockAiRun).not.toHaveBeenCalled();
+  });
+
+  it("should return 400 when message content exceeds limit", async () => {
+    const request = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "x".repeat(32_001) }],
+      }),
+    });
+    const response = await worker.fetch(request, mockEnv as any, mockCtx);
+    expect(response.status).toBe(400);
+    expect(mockAiRun).not.toHaveBeenCalled();
+  });
+
   it("should add system prompt if missing", async () => {
     mockAiRun.mockResolvedValue(mockStreamResponse());
 

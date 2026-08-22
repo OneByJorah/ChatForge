@@ -23,7 +23,7 @@ Send a chat message and receive a streaming AI response.
 }
 ```
 
-- `messages`: Array of chat messages
+- `messages`: Array of chat messages (max 100; each message max 32,000 chars)
 - Each message has `role` (`"system"`, `"user"`, or `"assistant"`) and `content` (string)
 - If no system message is provided, a default one is injected automatically
 
@@ -36,6 +36,7 @@ Send a chat message and receive a streaming AI response.
 
 **Error Responses:**
 
+- `400 Bad Request` — Malformed JSON body or invalid `messages` shape/size
 - `405 Method Not Allowed` — GET requests to `/api/chat`
 - `404 Not Found` — Unknown API routes
 - `500 Internal Server Error` — AI service failures

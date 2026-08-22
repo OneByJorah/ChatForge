@@ -2,6 +2,6 @@ repo: ChatForge
 class: AI / Edge
 org: OneByJorah
 license: MIT
-production_score: 82
-last_audit: "2026-07-05"
+production_score: 88
+last_audit: "2026-08-22"
 deploy_target: scratch
