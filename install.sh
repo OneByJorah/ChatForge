@@ -13,5 +13,12 @@ if [ ! -d node_modules ]; then
     npm install
 fi
 
-echo "Starting dev server on port 8787..."
+if [ ! -f .env ]; then
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo "Created .env from .env.example. Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID before deploying."
+    fi
+fi
+
+echo "Starting dev server on http://localhost:8787 ..."
 npm run dev

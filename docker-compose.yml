@@ -8,8 +8,6 @@ services:
     container_name: chatforge
     ports:
       - "8787:8787"
-    env_file:
-      - .env
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8787/health || exit 1"]

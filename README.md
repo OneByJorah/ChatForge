@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=fff)](https://workers.cloudflare.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=fff)](docker-compose.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen)](CONTRIBUTING.md)
 
 </div>
@@ -38,6 +39,7 @@ ChatForge is a lightweight, edge-deployed AI chat interface powered by **Cloudfl
 - **Markdown-Free Simplicity** — Vanilla HTML/CSS/JS frontend, zero framework overhead
 - **Security Headers** — CSP, HSTS, X-Frame-Options, nosniff, referrer/permissions policy
 - **Input Validation** — Message shape/count/length limits enforced server-side
+- **Docker Preview** — Run the static UI locally with `docker compose up` for a quick look
 
 > **Note:** ChatForge is a reference implementation / starter template. It intentionally has **no authentication, no persistence, and no rate limiting** — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the upgrade path.
 
@@ -59,6 +61,16 @@ The Workers AI binding requires **no API keys** — inference is billed to your 
 npm run dev   # http://localhost:8787
 ```
 
+### Docker (Static UI Preview)
+
+```bash
+./install.sh          # or install.ps1 on Windows — installs Node deps and starts dev
+# OR, for a static preview with no Cloudflare account:
+docker compose up -d  # http://localhost:8787
+```
+
+> The Docker image only previews the static frontend; the `/api/chat` endpoint requires `wrangler dev` or a deployed Worker because it depends on the `env.AI` binding.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -69,12 +81,15 @@ npm run dev   # http://localhost:8787
 | **Streaming** | Server-Sent Events (SSE) |
 | **Storage** | None (chat history lives in browser memory) |
 | **Auth** | None (add Cloudflare Access for production) |
+| **Container** | nginx:alpine for static previews |
 
 ## Screenshots
 
-| Chat Interface | Sample Conversation |
-|:---:|:---:|
-| <img src="docs/screenshots/chatforge-ui.png" alt="ChatForge UI" width="100%"> | <img src="docs/screenshots/chat-conversation.png" alt="Sample conversation" width="100%"> |
+| Chat Interface |
+|:--:|
+| <img src="docs/screenshots/chatforge-ui.png" alt="ChatForge UI" width="100%"> |
+
+> The screenshot above shows the static UI preview. Live AI responses require the Cloudflare Workers AI binding.
 
 ## Environment Variables
 
@@ -112,6 +127,10 @@ ChatForge/
 │   ├── screenshots/    # App screenshots
 │   └── API.md          # Full API documentation
 ├── wrangler.jsonc      # Cloudflare config
+├── Dockerfile          # Static UI preview image
+├── docker-compose.yml  # Local static preview
+├── install.sh          # macOS/Linux dev installer
+├── install.ps1         # Windows dev installer
 └── package.json
 ```
 
@@ -119,12 +138,12 @@ ChatForge/
 
 ```
 Browser ──SSE──▶ Cloudflare Worker (src/index.ts)
-                    │
-                    ├── GET /* ──▶ env.ASSETS.fetch() ──▶ public/ (static files)
-                    │
-                    └── POST /api/chat ──▶ env.AI.run() ──▶ Workers AI (Llama 3.1 8B)
-                                                │
-                                                └── text/event-stream response
+                     │
+                     ├── GET /* ──▶ env.ASSETS.fetch() ──▶ public/ (static files)
+                     │
+                     └── POST /api/chat ──▶ env.AI.run() ──▶ Workers AI (Llama 3.1 8B)
+                                                 │
+                                                 └── text/event-stream response
 ```
 
 Chat history is kept in browser memory only and resets on refresh.
@@ -143,7 +162,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## Security
 
-Found a vulnerability? Please report to **security@jorahone.com** per [SECURITY.md](SECURITY.md) — do not use public issues.
+Found a vulnerability? Please report to **security@example.com** per [SECURITY.md](SECURITY.md) — do not use public issues.
 
 ## License
 
@@ -154,7 +173,7 @@ Found a vulnerability? Please report to **security@jorahone.com** per [SECURITY.
 <p align="center">
   <a href="https://github.com/OneByJorah">OneByJorah</a>
   ·
-  <a href="https://jorahone.com">jorahone.com</a>
+  <a href="https://github.com/OneByJorah/ChatForge/issues">Issues</a>
   ·
   <a href="docs/API.md">API Docs</a>
   ·
