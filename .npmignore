@@ -1,0 +1,13 @@
+# Cloudflare
+wrangler.toml
+.env*
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+
+# Misc
+.DS_Store
+*.log
