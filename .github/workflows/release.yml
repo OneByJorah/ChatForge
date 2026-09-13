@@ -1,0 +1,22 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build release notes
+        uses: mikepenz/action-gh-release@v1
+        with:
+          body: |
+            ## What's Changed
+            ${{ github.event.head_commit.message }}
+          fail_on_unmatched_files: false
+          generate_release_notes: true

@@ -1,39 +1,31 @@
 {
-	"name": "ChatForge",
-	"description": "A simple chat application powered by Cloudflare Workers AI",
-	"cloudflare": {
-		"label": "LLM Chat App",
-		"products": [
-			"Workers",
-			"Workers AI",
-			"AI Gateway"
-		],
-		"categories": [
-			"ai"
-		],
-		"docs_url": "https://developers.cloudflare.com/workers-ai/",
-		"preview_icon_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/a974bd55-20c6-4656-fa29-1551d43ddc00/public",
-		"preview_image_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/65dd8441-89d3-491d-c5a1-0a000d070700/preview",
-		"publish": true
-	},
-	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.22.0",
-		"@cloudflare/workers-types": "^5.20260822.1",
-		"@types/node": "^26.2.0",
-		"typescript": "^7.0.2",
-		"vitest": "^4.1.11",
-		"wrangler": "^4.125.0"
-	},
-	"private": true,
-	"scripts": {
-		"cf-typegen": "wrangler types",
-		"check": "tsc --noEmit && wrangler deploy --dry-run",
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit",
-		"lint": "tsc --noEmit",
-		"format": "tsc --noEmit"
-	}
+  "name": "@jorahone/chatforge",
+  "version": "1.0.0",
+  "description": "AI-powered chat interface — multi-model (OpenAI, Anthropic, Ollama), real-time WebSocket streaming, conversations",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx"
+  },
+  "keywords": [
+    "chat", "ai", "llm", "openai", "anthropic", "ollama",
+    "websocket", "real-time", "jorahone", "onebyjorah", "self-hosted"
+  ],
+  "author": "OneByJorah <info@jorahone.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OneByJorah/ChatForge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OneByJorah/ChatForge/issues"
+  },
+  "homepage": "https://github.com/OneByJorah/ChatForge",
+  "files": ["dist/", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  }
 }
