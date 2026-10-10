@@ -19,4 +19,8 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
-      - run: npm audit --audit-level=high
+      # This Worker has NO runtime npm dependencies (dependencies: {}), so audit the
+      # production tree — auditing dev tooling here can never pass: the upstream
+      # @cloudflare/vitest-pool-workers advisory range (>=0.8.31) flags every
+      # current release, including latest 0.23.0.
+      - run: npm audit --omit=dev --audit-level=high
